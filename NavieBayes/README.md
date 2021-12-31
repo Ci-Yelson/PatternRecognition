@@ -18,7 +18,7 @@
 
 #### 各分类器ROC曲线
 
-![不同先验概率下各分类器的ROC曲线](.\img\不同先验概率下各分类器的ROC曲线.png)
+![不同先验概率下各分类器的ROC曲线](https://github.com/Ci-Yelson/PatternRecognition/blob/main/NavieBayes/img/不同先验概率下各分类器的ROC曲线.png)
 
 
 
@@ -26,25 +26,25 @@
 
 MLE_1RD决策面
 
-![MLE_1RD决策面](.\img\MLE_1RD决策面.png)
+![MLE_1RD决策面](https://github.com/Ci-Yelson/PatternRecognition/blob/main/NavieBayes/img/MLE_1RD决策面.png)
 
 
 
 MLE_2RD决策面：
 
-![MLE_2RD决策面](.\img\MLE_2RD决策面.png)
+![MLE_2RD决策面](https://github.com/Ci-Yelson/PatternRecognition/blob/main/NavieBayes/img/MLE_2RD决策面.png)
 
 
 
 MLE_3RD决策面：
 
-![MLE_3RD决策面](.\img\MLE_3RD决策面.png)
+![MLE_3RD决策面](https://github.com/Ci-Yelson/PatternRecognition/blob/main/NavieBayes/img/MLE_3RD决策面.png)
 
 
 
 KDE_1RD决策面：
 
-![KDE_1RD决策面](.\img\KDE_1RD决策面.png)
+![KDE_1RD决策面](https://github.com/Ci-Yelson/PatternRecognition/blob/main/NavieBayes/img/KDE_1RD决策面.png)
 
 
 
@@ -164,7 +164,7 @@ KDE_1RD决策面：
 
 各种核函数：
 
-![image-20220101010850650](.\img\核函数)
+![image-20220101010850650](https://github.com/Ci-Yelson/PatternRecognition/blob/main/NavieBayes/img/核函数)
 
 一维高斯核：
 $$
