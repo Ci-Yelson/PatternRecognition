@@ -43,13 +43,13 @@ class MLE2rd_NavieBayes:
     
 
     # 对数形式
-    # def gxi(self,x,u,sig,pwi):
-    #     x = x.reshape(-1,1)
-    #     p1 = 0.5*self.D*np.log(2*np.pi)
-    #     p2 = 0.5*np.log(np.linalg.det(sig))
-    #     p3 = 0.5*(x-u).T@np.linalg.inv(sig)@(x-u)
-    #     p4 = np.log(pwi)
-    #     return p1-p2-p3+p4
+    def gxi_ln(self,x,u,sig,pwi):
+        x = x.reshape(-1,1)
+        p1 = 0.5*self.D*np.log(2*np.pi)
+        p2 = 0.5*np.log(np.linalg.det(sig))
+        p3 = 0.5*(x-u).T@np.linalg.inv(sig)@(x-u)
+        p4 = np.log(pwi)
+        return p1-p2-p3+p4
 
     # 正态分布形式
     def gxi(self,x,u,sig,pwi):
@@ -57,6 +57,10 @@ class MLE2rd_NavieBayes:
         p1 = 1/(np.power(2*np.pi,self.D/2)*np.sqrt(np.linalg.det(sig)))
         p2 = np.exp(-0.5 * (x-u).T @ np.linalg.inv(sig) @ (x-u))
         return p1 * p2 * pwi
+
+    def gx_ln(self,x,pw1,pw2):
+        gx = self.gxi_ln(x,self.u[0],self.sig[0],pw1) - self.gxi_ln(x,self.u[1],self.sig[1],pw2)
+        return float(gx)
 
     def gx(self,x,pw1,pw2):
         gx = self.gxi(x,self.u[0],self.sig[0],pw1) - self.gxi(x,self.u[1],self.sig[1],pw2)
@@ -133,7 +137,7 @@ class MLE2rd_NavieBayes:
             plt.show()
 
         y_pe1 = np.array([self.gx(i,pw1,pw2)>0 for i in self.x_te1])
-        y_pe2 = np.array([self.gx(i,pw1,pw2)>0 for i in self.x_te2])
+        y_pe2 = np.array([self.gx(i,pw1,pw2)>=0 for i in self.x_te2])
         acc1 = np.mean(y_pe1)
         acc2 = 1-np.mean(y_pe2)
         print('pw1:{0:.2f}, pw2:{1:.2f}'.format(pw1,pw2))
@@ -143,8 +147,8 @@ class MLE2rd_NavieBayes:
 
 
     def ROC_curve(self,pw1,pw2):
-        score1 = np.array([self.gx(i,pw1,pw2) for i in self.x_te1])
-        score2 = np.array([self.gx(i,pw1,pw2) for i in self.x_te2])
+        score1 = np.array([self.gx_ln(i,pw1,pw2) for i in self.x_te1])
+        score2 = np.array([self.gx_ln(i,pw1,pw2) for i in self.x_te2])
         score = np.concatenate([score1,score2])
         y = np.concatenate([np.ones(self.x_te1.shape[0]),np.zeros(self.x_te2.shape[0])])
         _fpr,_tpr,_auc = ROC_method2(y,score)
@@ -153,8 +157,8 @@ class MLE2rd_NavieBayes:
 
 
     def ERR_curve(self,pw1,pw2):
-        score1 = np.array([self.gx(i,pw1,pw2) for i in self.x_te1])
-        score2 = np.array([self.gx(i,pw1,pw2) for i in self.x_te2])
+        score1 = np.array([self.gx_ln(i,pw1,pw2) for i in self.x_te1])
+        score2 = np.array([self.gx_ln(i,pw1,pw2) for i in self.x_te2])
         score = np.concatenate([score1,score2])
         y = np.concatenate([np.ones(self.x_te1.shape[0]),np.zeros(self.x_te2.shape[0])])
         _fpr,_tpr = ERR(y,score)

@@ -19,6 +19,20 @@ class KDE_NavieBayes:
 
     def norm_kernel(self,x):
         return 1/np.sqrt(2*np.pi) * np.exp(-0.5*np.square(x))
+
+    def gxi_ln(self,x,data,bw,pwi):
+        '''
+        x:(D,N)
+        data:(D,N)
+        '''
+        x = x.reshape(self.D,-1)
+        data = data.reshape(-1,self.D).T
+        y_norm = 1
+        for i in range(self.D):
+            y_norm = y_norm * self.norm_kernel((x[i]-data[i])/bw)
+        y = np.sum(y_norm) / (data.shape[1]*np.power(bw,self.D))
+        y = np.log(y)
+        return float(y+np.log(pwi))
         
     def gxi(self,x,data,bw,pwi):
         '''
@@ -32,6 +46,10 @@ class KDE_NavieBayes:
             y_norm = y_norm * self.norm_kernel((x[i]-data[i])/bw)
         y = np.sum(y_norm) / (data.shape[1]*np.power(bw,self.D))
         return float(y*pwi)
+
+    def gx_ln(self,x,data1,data2,bw,pw1,pw2):
+        gx = self.gxi_ln(x,data1,bw,pw1) - self.gxi_ln(x,data2,bw,pw2)
+        return float(gx)
 
     def gx(self,x,data1,data2,bw,pw1,pw2):
         gx = self.gxi(x,data1,bw,pw1) - self.gxi(x,data2,bw,pw2)
@@ -119,8 +137,8 @@ class KDE_NavieBayes:
 
     def ROC_curve(self,pw1,pw2):
         x1,x2 = self.x_tr1.reshape(1,-1)[0],self.x_tr2.reshape(1,-1)[0]
-        score1 = np.array([self.gx(i,data1=x1,data2=x2,bw=self.bw1,pw1=pw1,pw2=pw2) for i in self.x_te1])
-        score2 = np.array([self.gx(i,data1=x1,data2=x2,bw=self.bw1,pw1=pw1,pw2=pw2) for i in self.x_te2])
+        score1 = np.array([self.gx_ln(i,data1=x1,data2=x2,bw=self.bw1,pw1=pw1,pw2=pw2) for i in self.x_te1])
+        score2 = np.array([self.gx_ln(i,data1=x1,data2=x2,bw=self.bw1,pw1=pw1,pw2=pw2) for i in self.x_te2])
         score = np.concatenate([score1,score2])
         y = np.concatenate([np.ones(self.x_te1.shape[0]),np.zeros(self.x_te2.shape[0])])
         _fpr,_tpr,_auc = ROC_method1(y,score)
@@ -129,8 +147,8 @@ class KDE_NavieBayes:
 
     def ERR_curve(self,pw1,pw2):
         x1,x2 = self.x_tr1.reshape(1,-1)[0],self.x_tr2.reshape(1,-1)[0]
-        score1 = np.array([self.gx(i,data1=x1,data2=x2,bw=self.bw1,pw1=pw1,pw2=pw2) for i in self.x_te1])
-        score2 = np.array([self.gx(i,data1=x1,data2=x2,bw=self.bw1,pw1=pw1,pw2=pw2) for i in self.x_te2])
+        score1 = np.array([self.gx_ln(i,data1=x1,data2=x2,bw=self.bw1,pw1=pw1,pw2=pw2) for i in self.x_te1])
+        score2 = np.array([self.gx_ln(i,data1=x1,data2=x2,bw=self.bw1,pw1=pw1,pw2=pw2) for i in self.x_te2])
         score = np.concatenate([score1,score2])
         y = np.concatenate([np.ones(self.x_te1.shape[0]),np.zeros(self.x_te2.shape[0])])
         _fpr,_tpr = ERR(y,score)

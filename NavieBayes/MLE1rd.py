@@ -41,6 +41,12 @@ class MLE1rd_NavieBayes:
             print('sig2:',self.sig[1])
             print('============MLE============')
 
+    # 对数形式
+    def gxi_ln(self,x,u,sig,pwi):
+        p1 = -1*np.log(np.sqrt(2*np.pi)*np.sqrt(sig))
+        p2 = -0.5*np.square((x-u)/np.sqrt(sig))
+        p3 = np.log(pwi)
+        return float(p1+p2+p3)
 
     # 正态分布形式
     def gxi(self,x,u,sig,pwi):
@@ -48,6 +54,10 @@ class MLE1rd_NavieBayes:
         p1 = 1/(np.sqrt(2*np.pi)*np.sqrt(sig))
         p2 = np.exp(-0.5*np.square((x-u)/np.sqrt(sig)))
         return float(p1 * p2 * pwi)
+
+    def gx_ln(self,x,pw1,pw2):
+        gx = self.gxi_ln(x,self.u[0],self.sig[0],pw1) - self.gxi_ln(x,self.u[1],self.sig[1],pw2)
+        return float(gx)
 
     def gx(self,x,pw1,pw2):
         gx = self.gxi(x,self.u[0],self.sig[0],pw1) - self.gxi(x,self.u[1],self.sig[1],pw2)
@@ -82,7 +92,9 @@ class MLE1rd_NavieBayes:
             pw2 = self.rpw2
 
         y_pe1 = np.array([self.gx(i,pw1,pw2)>0 for i in self.x_te1])
-        y_pe2 = np.array([self.gx(i,pw1,pw2)>0 for i in self.x_te2])
+        y_pe2 = np.array([self.gx(i,pw1,pw2)>=0 for i in self.x_te2])
+        # y_pe1 = np.array([self.gx_ln(i,pw1,pw2)>0 for i in self.x_te1])
+        # y_pe2 = np.array([self.gx_ln(i,pw1,pw2)>=0 for i in self.x_te2])
         acc1 = np.mean(y_pe1)
         acc2 = 1-np.mean(y_pe2)
         print('pw1:{0:.2f}, pw2:{1:.2f}'.format(pw1,pw2))
@@ -94,23 +106,23 @@ class MLE1rd_NavieBayes:
 
         plt.plot(x1,y1,linewidth=2,label='男生：p(x|w1)p(w1)')
         plt.plot(x2,y2,linewidth=2,label='女生：p(x|w2)p(w2)')
-        plt.vlines(x0,0,np.max(np.concatenate([y1,y2])),linewidth=2,label='分界点：{0:.3f}'.format(x0),colors='r')
+        plt.vlines(x0,np.min(np.concatenate([y1,y2])),np.max(np.concatenate([y1,y2])),linewidth=2,label='分界点：{0:.3f}'.format(x0),colors='r')
         plt.title('pw1={0:.2f}, pw2={1:.2f}'.format(pw1,pw2))
         plt.legend()
         
 
     def ROC_curve(self,pw1,pw2):
-        score1 = np.array([self.gx(i,pw1,pw2) for i in self.x_te1])
-        score2 = np.array([self.gx(i,pw1,pw2) for i in self.x_te2])
+        score1 = np.array([self.gx_ln(i,pw1,pw2) for i in self.x_te1])
+        score2 = np.array([self.gx_ln(i,pw1,pw2) for i in self.x_te2])
         score = np.concatenate([score1,score2])
         y = np.concatenate([np.ones(self.x_te1.shape[0]),np.zeros(self.x_te2.shape[0])])
-        _fpr,_tpr,_auc = ROC_method2(y,score)
+        _fpr,_tpr,_auc = ROC_method1(y,score)
 
         return _fpr,_tpr,_auc
 
     def ERR_curve(self,pw1,pw2):
-        score1 = np.array([self.gx(i,pw1,pw2) for i in self.x_te1])
-        score2 = np.array([self.gx(i,pw1,pw2) for i in self.x_te2])
+        score1 = np.array([self.gx_ln(i,pw1,pw2) for i in self.x_te1])
+        score2 = np.array([self.gx_ln(i,pw1,pw2) for i in self.x_te2])
         score = np.concatenate([score1,score2])
         y = np.concatenate([np.ones(self.x_te1.shape[0]),np.zeros(self.x_te2.shape[0])])
         _fpr,_tpr = ERR(y,score)
