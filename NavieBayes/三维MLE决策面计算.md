@@ -2,9 +2,9 @@
 $$
 \begin{array}{c}
 g_{i}(X)=X^{T} W_{i} X+W_{i 1}^{T} X+W_{i 0} \\
-W_{i}=\frac{1}{2} \sum_{i}^{-1} \\
+W_{i}=-\frac{1}{2} \sum_{i}^{-1} \\
 W_{i 1}=\sum_{i}^{-1} \mu_{i} \\
-W_{i 0}=-\frac{1}{2} \mu_{i}^{T} \sum_{i}^{-1} \mu_{i}-\frac{1}{2} \ln \left|\sum_{i}^{-1}\right|+\ln P\left(\omega_{i}\right)
+W_{i 0}=-\frac{1}{2} \mu_{i}^{T} \sum_{i}^{-1} \mu_{i}-\frac{1}{2} \ln \left|\sum_{i}^{}\right|+\ln P\left(\omega_{i}\right)
 \end{array}
 $$
 
